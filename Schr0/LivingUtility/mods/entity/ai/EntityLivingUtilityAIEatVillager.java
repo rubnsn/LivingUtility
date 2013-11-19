@@ -2,11 +2,12 @@ package Schr0.LivingUtility.mods.entity.ai;
 
 import java.util.List;
 
+import Schr0.LivingUtility.mods.entity.EntityLivingChest;
+import Schr0.LivingUtility.mods.entity.EntityLivingUtility;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-import Schr0.LivingUtility.mods.entity.EntityLivingChest;
-import Schr0.LivingUtility.mods.entity.EntityLivingUtility;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIAvoidEntity;
