@@ -11,6 +11,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import Schr0.LivingUtility.mods.LivingUtility;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAICollectItem;
@@ -486,6 +487,40 @@ public class EntityLivingChest extends EntityLivingUtility
 				this.lid = 0.0F;
 			}
 		}
+		//particleを再生させよう!
+		if(worldObj.isRemote){
+		    String particleName=dataWatcher.getWatchableObjectString(30);
+		    if(particleName!=null&&!particleName.equals("")){
+		        for (int j = 0; j < 5; ++j)
+		        {
+		            Vec3 vec3 = this.worldObj.getWorldVec3Pool().getVecFromPool(((double)this.worldObj.rand.nextFloat() - 0.5D) * 0.1D, Math.random() * 0.1D + 0.1D, 0.0D);
+		            vec3.rotateAroundX(-this.rotationPitch * (float)Math.PI / 180.0F);
+		            vec3.rotateAroundY(-this.rotationYaw * (float)Math.PI / 180.0F);
+		            Vec3 vec31 = this.worldObj.getWorldVec3Pool().getVecFromPool(((double)this.worldObj.rand.nextFloat() - 0.5D) * 0.3D, (double)(-this.worldObj.rand.nextFloat()) * 0.6D - 0.3D, 0.6D);
+		            vec31.rotateAroundX(-this.rotationPitch * (float)Math.PI / 180.0F);
+		            vec31.rotateAroundY(-this.rotationYaw * (float)Math.PI / 180.0F);
+		            vec31 = vec31.addVector(this.posX, this.posY + (double)this.getEyeHeight(), this.posZ);
+		            this.worldObj.spawnParticle(particleName, vec31.xCoord, vec31.yCoord, vec31.zCoord, vec3.xCoord, vec3.yCoord + 0.05D, vec3.zCoord);
+		            
+		        }
+		    }
+		}
 	}
+	//30 パーティクルストリング同期用
+	@Override
+    protected void entityInit()
+    {
+	    super.entityInit();
+        this.dataWatcher.addObject(30, "");
+    }
 	
+	//蓋の角度をセット
+    public void setLidAngle(float lidAngle){
+        this.lidAngle=lidAngle;
+    }
+    
+    //蓋の角度を取得
+    public float getLidAngle(){
+        return this.lidAngle;
+    }
 }
