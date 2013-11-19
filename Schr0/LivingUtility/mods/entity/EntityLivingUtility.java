@@ -670,29 +670,6 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 		}
 	}
 	
-	//テキトーに空いているところに投げ込む、溢れは地面に投げ捨てる
-	public void setInventory(ItemStack itemStack){
-	    ItemStack slotStack;
-	    for(int i=0;i<this.getSizeInventory();i++){
-	        slotStack=this.ContainerItems[i];
-	        if(slotStack!=null){
-    	        if(itemStack.isItemEqual(slotStack)){
-        	        if(slotStack.stackSize<slotStack.getItem().getItemStackLimit(itemStack)){
-        	            int remainder=slotStack.getItem().getItemStackLimit(itemStack)-slotStack.stackSize;
-        	            if(itemStack.stackSize<=remainder){
-        	                slotStack.stackSize+=itemStack.stackSize;
-        	                return;
-        	            }else{
-        	                slotStack.stackSize=slotStack.getItem().getItemStackLimit(itemStack);
-        	                itemStack.stackSize-=remainder;
-        	            }
-        	        }
-    	        }
-	        }
-	    }
-	    this.entityDropItem(itemStack, 0.5F);
-	}
-	
 	//インベントリの名称
 	@Override
 	public String getInvName()
