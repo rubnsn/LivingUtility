@@ -15,6 +15,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import Schr0.LivingUtility.mods.LivingUtility;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAICollectItem;
+import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIEatVillager;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIFindChest;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIFollowOwner;
 import cpw.mods.fml.relauncher.Side;
@@ -39,6 +40,8 @@ public class EntityLivingChest extends EntityLivingUtility
 	public EntityAIWander					AIWander		= new EntityAIWander(this, 1.25F);
 	public EntityLivingUtilityAICollectItem	AICollectItem	= new EntityLivingUtilityAICollectItem(this, 1.25F);
 	public EntityLivingUtilityAIFindChest	AIFindChest		= new EntityLivingUtilityAIFindChest(this, 1.25F);
+	//実食！
+    public EntityLivingUtilityAIEatVillager AIEatVillager   = new EntityLivingUtilityAIEatVillager(this);
 	
 	public EntityLivingChest(World par1World)
 	{
@@ -71,6 +74,7 @@ public class EntityLivingChest extends EntityLivingUtility
 		this.tasks.removeTask(AIWander);
 		this.tasks.removeTask(AICollectItem);
 		this.tasks.removeTask(AIFindChest);
+		this.tasks.removeTask(AIEatVillager);
 		
 		//飼いならし状態の場合
 		if (this.isTamed())
@@ -94,6 +98,7 @@ public class EntityLivingChest extends EntityLivingUtility
 				this.tasks.addTask(5, AICollectItem);
 				this.tasks.addTask(6, AIFindChest);
 				this.tasks.addTask(7, AIWander);
+				this.tasks.addTask(7, AIEatVillager);
 			}
 		}
 		//野生状態の場合
