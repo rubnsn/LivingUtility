@@ -33,31 +33,19 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	public ItemStack[]				ContainerItems;
 	
 	//元のブロックのItmeStack
-	private final ItemStack[]		BlockStack	= new ItemStack[1];
+	private final ItemStack[]		BlockStack	= new ItemStack[ 1 ];
 	
 	//お座りのAI（オオカミ改変）
-	public EntityLivingUtilityAISit	aiSit		= new EntityLivingUtilityAISit(this);
+	public EntityLivingUtilityAISit	aiSit		= new EntityLivingUtilityAISit( this );
 	
 	public EntityLivingUtility(World par1World)
 	{
-		super(par1World);
-		
-		//AIの設定
-		// 0 水泳		(4)
-		// 1 お座り		(5)
-		// 2 取引		(none)
-		// 2 取引注視	(none)
-		// 3 注視		(2)
-		this.tasks.addTask(0, new EntityAISwimming(this));
-		this.tasks.addTask(1, this.aiSit);
-		this.tasks.addTask(2, new EntityLivingUtilityAITrade(this));
-		this.tasks.addTask(2, new EntityLivingUtilityAILookAtTradePlayer(this));
-		this.tasks.addTask(3, new EntityAIWatchClosest(this, EntityLiving.class, 6.0F, 0.02F));
+		super( par1World );
 		
 		//インベントリサイズの設定
-		if (this.getLivingInventrySize() != 0)
+		if( this.getLivingInventrySize() != 0 )
 		{
-			this.ContainerItems = new ItemStack[this.getLivingInventrySize()];
+			this.ContainerItems = new ItemStack[ this.getLivingInventrySize() ];
 		}
 	}
 	
@@ -70,36 +58,50 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	public void setAITask()
 	{
 		//音を出す
-		this.playSE("random.orb", 1.0F, 1.0F);
+		this.playSE( "random.orb", 1.0F, 1.0F );
 		
-		/*
-		 *  個々のAIの切り替え処理を入れる
-		 */
+		//AIの除去
+		for( int i = 0; i < this.tasks.taskEntries.size(); i++ )
+		{
+			this.tasks.taskEntries.remove( i );
+		}
+		
+		//基本AIの設定
+		// 0 水泳		(4)
+		// 1 お座り		(5)
+		// 2 取引		(none)
+		// 2 取引注視	(none)
+		// 3 注視		(2)
+		this.tasks.addTask( 0, new EntityAISwimming( this ) );
+		this.tasks.addTask( 1, this.aiSit );
+		this.tasks.addTask( 2, new EntityLivingUtilityAITrade( this ) );
+		this.tasks.addTask( 2, new EntityLivingUtilityAILookAtTradePlayer( this ) );
+		this.tasks.addTask( 3, new EntityAIWatchClosest( this, EntityLiving.class, 6.0F, 0.02F ) );
 	}
 	
 	//お座りの処理（独自）
 	public void setSafeSit()
 	{
 		//音を出す
-		this.playSE("random.pop", 1.0F, 1.0F);
+		this.playSE( "random.pop", 1.0F, 1.0F );
 		
 		//クライアントだけの処理
-		if (!this.worldObj.isRemote)
+		if( !this.worldObj.isRemote )
 		{
 			//お座り状態である場合
-			if (this.isSitting())
+			if( this.isSitting() )
 			{
 				//お座り解除
-				this.aiSit.setSitting(false);
+				this.aiSit.setSitting( false );
 			}
 			//お座り状態でない場合
 			else
 			{
 				//メッセージの出力（独自）
-				this.Information(this.getInvName() + " : Sit down");
+				this.Information( this.getInvName() + " : Sit down" );
 				
 				//お座り
-				this.aiSit.setSitting(true);
+				this.aiSit.setSitting( true );
 			}
 		}
 		
@@ -107,33 +109,33 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 		this.isJumping = false;
 		
 		//追従Entityの解除
-		this.setPathToEntity((PathEntity) null);
+		this.setPathToEntity( (PathEntity) null );
 	}
 	
 	//騎乗の処理（独自）
 	public void setMount(Entity entity)
 	{
 		//音を出す
-		this.playSE("random.pop", 1.0F, 1.0F);
+		this.playSE( "random.pop", 1.0F, 1.0F );
 		
 		//クライアントだけの処理
-		if (!this.worldObj.isRemote)
+		if( !this.worldObj.isRemote )
 		{
 			//降ろす
-			if (entity.riddenByEntity == this)
+			if( entity.riddenByEntity == this )
 			{
 				//メッセージの出力（独自）
-				this.Information(this.getInvName() + " : Dismount");
+				this.Information( this.getInvName() + " : Dismount" );
 				
-				this.mountEntity(null);
+				this.mountEntity( null );
 			}
 			//乗せる
-			else if (entity.riddenByEntity == null)
+			else if( entity.riddenByEntity == null )
 			{
 				//メッセージの出力（独自）
-				this.Information(this.getInvName() + " : Mount");
+				this.Information( this.getInvName() + " : Mount" );
 				
-				this.mountEntity(entity);
+				this.mountEntity( entity );
 			}
 		}
 	}
@@ -145,18 +147,18 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 		this.prev = this.lid;
 		float f = 0.4F;//開閉速度 (0.1F)
 		
-		if (Flag && this.lid == 0.0F)
+		if( Flag && this.lid == 0.0F )
 		{
 			//開く
-			this.setOpen(true);
+			this.setOpen( true );
 			this.lid++;
 		}
 		
-		if (!Flag && this.lid > 0.0F || Flag && this.lid < 1.0F)
+		if( !Flag && this.lid > 0.0F || Flag && this.lid < 1.0F )
 		{
 			float f1 = this.lid;
 			
-			if (Flag)
+			if( Flag )
 			{
 				this.lid += f;
 			}
@@ -165,20 +167,20 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 				this.lid -= f;
 			}
 			
-			if (this.lid > 1.0F)
+			if( this.lid > 1.0F )
 			{
 				this.lid = 1.0F;
 			}
 			
 			float f2 = 0.5F;
 			
-			if (this.lid < f2 && f1 >= f2)
+			if( this.lid < f2 && f1 >= f2 )
 			{
 				//閉じる
-				this.setOpen(false);
+				this.setOpen( false );
 			}
 			
-			if (this.lid < 0.0F)
+			if( this.lid < 0.0F )
 			{
 				this.lid = 0.0F;
 			}
@@ -200,16 +202,16 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	//SEの出力（独自）
 	public void playSE(String type, float vol, float pitch)
 	{
-		this.worldObj.playSoundEffect(this.posX, this.posY, this.posZ, type, vol, pitch);
+		this.worldObj.playSoundEffect( this.posX, this.posY, this.posZ, type, vol, pitch );
 	}
 	
 	//メッセージの出力（独自）
 	public void Information(String Message)
 	{
-		if (!this.worldObj.isRemote)
+		if( !this.worldObj.isRemote )
 		{
 			//メッセージ
-			LivingUtility.proxy.addMessage(Message);
+			LivingUtility.proxy.addMessage( Message );
 		}
 	}
 	
@@ -219,15 +221,15 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	@Override
 	public double getYOffset()
 	{
-		if (ridingEntity != null)
+		if( ridingEntity != null )
 		{
-			if (ridingEntity instanceof EntityPlayer)
+			if( ridingEntity instanceof EntityPlayer )
 			{
-				return (double) (ridingEntity.yOffset - 1.2F);
+				return (double) ( ridingEntity.yOffset - 1.2F );
 			}
 			else
 			{
-				return (double) (ridingEntity.yOffset + 0.15F);
+				return (double) ( ridingEntity.yOffset + 0.15F );
 			}
 		}
 		
@@ -264,30 +266,30 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	protected void entityInit()
 	{
 		super.entityInit();
-		this.dataWatcher.addObject(16, Byte.valueOf((byte) 0));
-		this.dataWatcher.addObject(17, "");
-		this.dataWatcher.addObject(18, new Integer(0));
-		this.dataWatcher.addObject(19, Byte.valueOf((byte) 0));
+		this.dataWatcher.addObject( 16, Byte.valueOf( (byte) 0 ) );
+		this.dataWatcher.addObject( 17, "" );
+		this.dataWatcher.addObject( 18, new Integer( 0 ) );
+		this.dataWatcher.addObject( 19, Byte.valueOf( (byte) 0 ) );
 	}
 	
 	//飼いならしの判定 16
 	public boolean isTamed()
 	{
-		return (this.dataWatcher.getWatchableObjectByte(16) & 4) != 0;
+		return ( this.dataWatcher.getWatchableObjectByte( 16 ) & 4 ) != 0;
 	}
 	
 	//飼いならしの処理 16
 	public void setTamed(boolean par1)
 	{
-		byte b0 = this.dataWatcher.getWatchableObjectByte(16);
+		byte b0 = this.dataWatcher.getWatchableObjectByte( 16 );
 		
-		if (par1)
+		if( par1 )
 		{
-			this.dataWatcher.updateObject(16, Byte.valueOf((byte) (b0 | 4)));
+			this.dataWatcher.updateObject( 16, Byte.valueOf( (byte) ( b0 | 4 ) ) );
 		}
 		else
 		{
-			this.dataWatcher.updateObject(16, Byte.valueOf((byte) (b0 & -5)));
+			this.dataWatcher.updateObject( 16, Byte.valueOf( (byte) ( b0 & -5 ) ) );
 		}
 		
 		//AIの切り替えの処理(独自)
@@ -297,72 +299,72 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	//お座りの判定 16
 	public boolean isSitting()
 	{
-		return (this.dataWatcher.getWatchableObjectByte(16) & 1) != 0;
+		return ( this.dataWatcher.getWatchableObjectByte( 16 ) & 1 ) != 0;
 	}
 	
 	//お座りの処理 16
 	public void setSitting(boolean par1)
 	{
-		byte b0 = this.dataWatcher.getWatchableObjectByte(16);
+		byte b0 = this.dataWatcher.getWatchableObjectByte( 16 );
 		
-		if (par1)
+		if( par1 )
 		{
-			this.dataWatcher.updateObject(16, Byte.valueOf((byte) (b0 | 1)));
+			this.dataWatcher.updateObject( 16, Byte.valueOf( (byte) ( b0 | 1 ) ) );
 		}
 		else
 		{
-			this.dataWatcher.updateObject(16, Byte.valueOf((byte) (b0 & -2)));
+			this.dataWatcher.updateObject( 16, Byte.valueOf( (byte) ( b0 & -2 ) ) );
 		}
 	}
 	
 	//オーナー設定の処理 17
 	public void setOwner(String par1Str)
 	{
-		this.dataWatcher.updateObject(17, par1Str);
+		this.dataWatcher.updateObject( 17, par1Str );
 	}
 	
 	//オーナーの生物名称 17
 	public String getOwnerName()
 	{
-		return this.dataWatcher.getWatchableObjectString(17);
+		return this.dataWatcher.getWatchableObjectString( 17 );
 	}
 	
 	//オーナーのEntityLivingBaseをget
 	public EntityLivingBase getOwner()
 	{
-		return this.worldObj.getPlayerEntityByName(this.getOwnerName());
+		return this.worldObj.getPlayerEntityByName( this.getOwnerName() );
 	}
 	
 	//ModeをGet 18
 	public int getMode()
 	{
-		return this.dataWatcher.getWatchableObjectInt(18);
+		return this.dataWatcher.getWatchableObjectInt( 18 );
 	}
 	
 	//ModeをSet 18
 	public void setMode(int par1)
 	{
-		this.dataWatcher.updateObject(18, Integer.valueOf(par1));
+		this.dataWatcher.updateObject( 18, Integer.valueOf( par1 ) );
 	}
 	
 	//開閉の判定 19
 	public boolean isOpen()
 	{
-		return (this.dataWatcher.getWatchableObjectByte(19) & 4) != 0;
+		return ( this.dataWatcher.getWatchableObjectByte( 19 ) & 4 ) != 0;
 	}
 	
 	//開閉の処理 19
 	public void setOpen(boolean par1)
 	{
-		byte b0 = this.dataWatcher.getWatchableObjectByte(19);
+		byte b0 = this.dataWatcher.getWatchableObjectByte( 19 );
 		
-		if (par1)
+		if( par1 )
 		{
-			this.dataWatcher.updateObject(19, Byte.valueOf((byte) (b0 | 4)));
+			this.dataWatcher.updateObject( 19, Byte.valueOf( (byte) ( b0 | 4 ) ) );
 		}
 		else
 		{
-			this.dataWatcher.updateObject(19, Byte.valueOf((byte) (b0 & -5)));
+			this.dataWatcher.updateObject( 19, Byte.valueOf( (byte) ( b0 & -5 ) ) );
 		}
 	}
 	
@@ -370,39 +372,39 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	@Override
 	public void writeEntityToNBT(NBTTagCompound par1NBTTagCompound)
 	{
-		super.writeEntityToNBT(par1NBTTagCompound);
+		super.writeEntityToNBT( par1NBTTagCompound );
 		
 		//内部インベントリの保存（独自）
 		this.save();
 		
 		//オーナー
-		if (this.getOwnerName() == null)
+		if( this.getOwnerName() == null )
 		{
-			par1NBTTagCompound.setString("Owner", "");
+			par1NBTTagCompound.setString( "Owner", "" );
 		}
 		else
 		{
-			par1NBTTagCompound.setString("Owner", this.getOwnerName());
+			par1NBTTagCompound.setString( "Owner", this.getOwnerName() );
 		}
 		
 		//お座り状態
-		par1NBTTagCompound.setBoolean("Sitting", this.isSitting());
+		par1NBTTagCompound.setBoolean( "Sitting", this.isSitting() );
 		
 		//開閉状態
-		par1NBTTagCompound.setBoolean("Open", this.isOpen());
+		par1NBTTagCompound.setBoolean( "Open", this.isOpen() );
 		
 		//Mode
-		par1NBTTagCompound.setInteger("Mode", this.getMode());
+		par1NBTTagCompound.setInteger( "Mode", this.getMode() );
 		
 		//元のBlockのItemStack
 		NBTTagList par1nbttaglistA = new NBTTagList();
 		NBTTagCompound par1nbttaglistB = new NBTTagCompound();
-		if (this.BlockStack[0] != null)
+		if( this.BlockStack[0] != null )
 		{
-			this.BlockStack[0].writeToNBT(par1nbttaglistB);
+			this.BlockStack[0].writeToNBT( par1nbttaglistB );
 		}
-		par1nbttaglistA.appendTag(par1nbttaglistB);
-		par1NBTTagCompound.setTag("BlockStack", par1nbttaglistA);
+		par1nbttaglistA.appendTag( par1nbttaglistB );
+		par1NBTTagCompound.setTag( "BlockStack", par1nbttaglistA );
 		
 	}
 	
@@ -410,36 +412,36 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	@Override
 	public void readEntityFromNBT(NBTTagCompound par1NBTTagCompound)
 	{
-		super.readEntityFromNBT(par1NBTTagCompound);
+		super.readEntityFromNBT( par1NBTTagCompound );
 		
 		//内部インベントリの読み込み（独自）
 		this.load();
 		
 		//オーナー
-		String OwnerName = par1NBTTagCompound.getString("Owner");
+		String OwnerName = par1NBTTagCompound.getString( "Owner" );
 		
-		if (OwnerName.length() > 0)
+		if( OwnerName.length() > 0 )
 		{
-			this.setOwner(OwnerName);
-			this.setTamed(true);
+			this.setOwner( OwnerName );
+			this.setTamed( true );
 		}
 		
 		//お座り状態
-		this.aiSit.setSitting(par1NBTTagCompound.getBoolean("Sitting"));
-		this.setSitting(par1NBTTagCompound.getBoolean("Sitting"));
+		this.aiSit.setSitting( par1NBTTagCompound.getBoolean( "Sitting" ) );
+		this.setSitting( par1NBTTagCompound.getBoolean( "Sitting" ) );
 		
 		//Mode
-		this.setMode(par1NBTTagCompound.getInteger("Mode"));
+		this.setMode( par1NBTTagCompound.getInteger( "Mode" ) );
 		
 		//開閉状態
-		this.setOpen(par1NBTTagCompound.getBoolean("Open"));
+		this.setOpen( par1NBTTagCompound.getBoolean( "Open" ) );
 		
 		//元のBlockのItemStack
 		NBTTagList par1nbttaglistA;
-		if (par1NBTTagCompound.hasKey("BlockStack"))
+		if( par1NBTTagCompound.hasKey( "BlockStack" ) )
 		{
-			par1nbttaglistA = par1NBTTagCompound.getTagList("BlockStack");
-			this.BlockStack[0] = ItemStack.loadItemStackFromNBT((NBTTagCompound) par1nbttaglistA.tagAt(0));
+			par1nbttaglistA = par1NBTTagCompound.getTagList( "BlockStack" );
+			this.BlockStack[0] = ItemStack.loadItemStackFromNBT( (NBTTagCompound) par1nbttaglistA.tagAt( 0 ) );
 		}
 		
 		//AIの切り替えの処理(独自)
@@ -451,44 +453,44 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	protected void dropFewItems(boolean par1, int par2)
 	{
 		//元になったブロックをドロップ
-		if (this.getBlockStack() != null)
+		if( this.getBlockStack() != null )
 		{
-			this.entityDropItem(this.getBlockStack(), 0.5F);
+			this.entityDropItem( this.getBlockStack(), 0.5F );
 		}
 		
 		//----------インベントリの中身をﾄﾞﾛｯﾌﾟ----------//
-		for (int i = 0; i < this.getSizeInventory(); ++i)
+		for( int i = 0; i < this.getSizeInventory(); ++i )
 		{
-			ItemStack itemstack = this.getStackInSlot(i);
+			ItemStack itemstack = this.getStackInSlot( i );
 			
-			if (itemstack != null)
+			if( itemstack != null )
 			{
 				float f = this.rand.nextFloat() * 0.8F + 0.1F;
 				float f1 = this.rand.nextFloat() * 0.8F + 0.1F;
 				float f2 = this.rand.nextFloat() * 0.8F + 0.1F;
 				
-				while (itemstack.stackSize > 0)
+				while( itemstack.stackSize > 0 )
 				{
-					int j = this.rand.nextInt(21) + 10;
+					int j = this.rand.nextInt( 21 ) + 10;
 					
-					if (j > itemstack.stackSize)
+					if( j > itemstack.stackSize )
 					{
 						j = itemstack.stackSize;
 					}
 					
 					itemstack.stackSize -= j;
-					EntityItem entityitem = new EntityItem(this.worldObj, this.posX + (double) f, this.posY + (double) f1, this.posZ + (double) f2, new ItemStack(itemstack.itemID, j, itemstack.getItemDamage()));
+					EntityItem entityitem = new EntityItem( this.worldObj, this.posX + (double) f, this.posY + (double) f1, this.posZ + (double) f2, new ItemStack( itemstack.itemID, j, itemstack.getItemDamage() ) );
 					
-					if (itemstack.hasTagCompound())
+					if( itemstack.hasTagCompound() )
 					{
-						entityitem.getEntityItem().setTagCompound((NBTTagCompound) itemstack.getTagCompound().copy());
+						entityitem.getEntityItem().setTagCompound( (NBTTagCompound) itemstack.getTagCompound().copy() );
 					}
 					
 					float f3 = 0.05F;
-					entityitem.motionX = (double) ((float) this.rand.nextGaussian() * f3);
-					entityitem.motionY = (double) ((float) this.rand.nextGaussian() * f3 + 0.2F);
-					entityitem.motionZ = (double) ((float) this.rand.nextGaussian() * f3);
-					this.worldObj.spawnEntityInWorld(entityitem);
+					entityitem.motionX = (double) ( (float) this.rand.nextGaussian() * f3 );
+					entityitem.motionY = (double) ( (float) this.rand.nextGaussian() * f3 + 0.2F );
+					entityitem.motionZ = (double) ( (float) this.rand.nextGaussian() * f3 );
+					this.worldObj.spawnEntityInWorld( entityitem );
 				}
 			}
 		}
@@ -500,12 +502,12 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	public boolean attackEntityFrom(DamageSource par1DamageSource, float par2)
 	{
 		//乗っている場合にはダメージ無効
-		if (this.isRiding())
+		if( this.isRiding() )
 		{
 			return false;
 		}
 		
-		return super.attackEntityFrom(par1DamageSource, par2);
+		return super.attackEntityFrom( par1DamageSource, par2 );
 	}
 	
 	//インタラクトした際の処理
@@ -513,8 +515,8 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	public boolean interact(EntityPlayer par1EntityPlayer)
 	{
 		//Customerのset（独自）
-		this.setCustomer(par1EntityPlayer);
-		return super.interact(par1EntityPlayer);
+		this.setCustomer( par1EntityPlayer );
+		return super.interact( par1EntityPlayer );
 	}
 	
 	//Customerのset（独自）
@@ -542,22 +544,22 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	{
 		// ItemStackのNBTを取得、空の中身を作成しておく
 		NBTTagCompound nbttagcompound = this.getEntityData();
-		this.ContainerItems = new ItemStack[this.getSizeInventory()];
+		this.ContainerItems = new ItemStack[ this.getSizeInventory() ];
 		
 		// NBTが無ければ中身は空のままで
-		if (nbttagcompound == null)
+		if( nbttagcompound == null )
 		{
 			return;
 		}
 		
-		NBTTagList nbttaglist = nbttagcompound.getTagList("Items");
-		for (int i = 0; i < nbttaglist.tagCount(); i++)
+		NBTTagList nbttaglist = nbttagcompound.getTagList( "Items" );
+		for( int i = 0; i < nbttaglist.tagCount(); i++ )
 		{
-			NBTTagCompound nbttagcompound1 = (NBTTagCompound) nbttaglist.tagAt(i);
-			int j = nbttagcompound1.getByte("Slot") & 0xff;
-			if (j >= 0 && j < this.ContainerItems.length)
+			NBTTagCompound nbttagcompound1 = (NBTTagCompound) nbttaglist.tagAt( i );
+			int j = nbttagcompound1.getByte( "Slot" ) & 0xff;
+			if( j >= 0 && j < this.ContainerItems.length )
 			{
-				this.ContainerItems[j] = ItemStack.loadItemStackFromNBT(nbttagcompound1);
+				this.ContainerItems[j] = ItemStack.loadItemStackFromNBT( nbttagcompound1 );
 			}
 		}
 	}
@@ -566,25 +568,25 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	public void save()
 	{
 		NBTTagList nbttaglist = new NBTTagList();
-		for (int i = 0; i < this.ContainerItems.length; i++)
+		for( int i = 0; i < this.ContainerItems.length; i++ )
 		{
-			if (this.ContainerItems[i] != null)
+			if( this.ContainerItems[i] != null )
 			{
 				NBTTagCompound nbttagcompound1 = new NBTTagCompound();
-				nbttagcompound1.setByte("Slot", (byte) i);
-				this.ContainerItems[i].writeToNBT(nbttagcompound1);
-				nbttaglist.appendTag(nbttagcompound1);
+				nbttagcompound1.setByte( "Slot", (byte) i );
+				this.ContainerItems[i].writeToNBT( nbttagcompound1 );
+				nbttaglist.appendTag( nbttagcompound1 );
 			}
 		}
 		
 		//ItemStackのNBTに中身を保存
 		NBTTagCompound nbttagcompound = this.getEntityData();
-		if (nbttagcompound == null)
+		if( nbttagcompound == null )
 		{
 			nbttagcompound = new NBTTagCompound();
 		}
 		
-		nbttagcompound.setTag("Items", nbttaglist);
+		nbttagcompound.setTag( "Items", nbttaglist );
 	}
 	
 	//内部インベントリが一杯の場合の判定（独自）
@@ -593,7 +595,7 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 		//内部インベントリの読み込み（独自）
 		this.load();
 		
-		return (this.getFirstEmptyStack() == -1);
+		return ( this.getFirstEmptyStack() == -1 );
 	}
 	
 	//インベントリのサイズ
@@ -614,11 +616,11 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	@Override
 	public ItemStack decrStackSize(int par1, int par2)
 	{
-		if (this.ContainerItems[par1] != null)
+		if( this.ContainerItems[par1] != null )
 		{
 			ItemStack itemstack;
 			
-			if (this.ContainerItems[par1].stackSize <= par2)
+			if( this.ContainerItems[par1].stackSize <= par2 )
 			{
 				itemstack = this.ContainerItems[par1];
 				this.ContainerItems[par1] = null;
@@ -626,9 +628,9 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 			}
 			else
 			{
-				itemstack = this.ContainerItems[par1].splitStack(par2);
+				itemstack = this.ContainerItems[par1].splitStack( par2 );
 				
-				if (this.ContainerItems[par1].stackSize == 0)
+				if( this.ContainerItems[par1].stackSize == 0 )
 				{
 					this.ContainerItems[par1] = null;
 				}
@@ -646,7 +648,7 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	@Override
 	public ItemStack getStackInSlotOnClosing(int par1)
 	{
-		if (this.ContainerItems[par1] != null)
+		if( this.ContainerItems[par1] != null )
 		{
 			ItemStack itemstack = this.ContainerItems[par1];
 			this.ContainerItems[par1] = null;
@@ -664,7 +666,7 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	{
 		this.ContainerItems[par1] = par2ItemStack;
 		
-		if (par2ItemStack != null && par2ItemStack.stackSize > this.getInventoryStackLimit())
+		if( par2ItemStack != null && par2ItemStack.stackSize > this.getInventoryStackLimit() )
 		{
 			par2ItemStack.stackSize = this.getInventoryStackLimit();
 		}
@@ -676,7 +678,7 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	{
 		String name = this.getEntityName();
 		
-		if (this.hasCustomNameTag())
+		if( this.hasCustomNameTag() )
 		{
 			name = this.getCustomNameTag();
 		}
@@ -704,7 +706,7 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	public void openChest()
 	{
 		//開く
-		this.setOpen(true);
+		this.setOpen( true );
 		
 		//内部インベントリの読み込み（独自）
 		this.load();
@@ -715,7 +717,7 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	public void closeChest()
 	{
 		//閉じる
-		this.setOpen(false);
+		this.setOpen( false );
 		
 		//内部インベントリの保存（独自）
 		this.save();
@@ -733,7 +735,7 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	@Override
 	public boolean isUseableByPlayer(EntityPlayer par1EntityPlayer)
 	{
-		if (this.getCustomer() != par1EntityPlayer)
+		if( this.getCustomer() != par1EntityPlayer )
 		{
 			return false;
 		}
@@ -753,9 +755,9 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	{
 		this.openChest();
 		
-		for (int i = 0; i < this.getSizeInventory(); ++i)
+		for( int i = 0; i < this.getSizeInventory(); ++i )
 		{
-			if (this.ContainerItems[i] == null)
+			if( this.ContainerItems[i] == null )
 			{
 				this.closeChest();
 				return i;
@@ -772,25 +774,25 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 		this.openChest();
 		int slot;
 		
-		if (par1ItemStack == null)
+		if( par1ItemStack == null )
 		{
 			this.closeChest();
 			return false;
 		}
-		else if (par1ItemStack.stackSize == 0)
+		else if( par1ItemStack.stackSize == 0 )
 		{
 			this.closeChest();
 			return false;
 		}
 		else
 		{
-			if (par1ItemStack.isItemDamaged())
+			if( par1ItemStack.isItemDamaged() )
 			{
 				slot = this.getFirstEmptyStack();
 				
-				if (slot >= 0)
+				if( slot >= 0 )
 				{
-					this.ContainerItems[slot] = ItemStack.copyItemStack(par1ItemStack);
+					this.ContainerItems[slot] = ItemStack.copyItemStack( par1ItemStack );
 					par1ItemStack.stackSize = 0;
 					
 					this.closeChest();
@@ -807,9 +809,9 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 				do
 				{
 					slot = par1ItemStack.stackSize;
-					par1ItemStack.stackSize = this.storePartialItemStack(par1ItemStack);
+					par1ItemStack.stackSize = this.storePartialItemStack( par1ItemStack );
 				}
-				while (par1ItemStack.stackSize > 0 && par1ItemStack.stackSize < slot);
+				while( par1ItemStack.stackSize > 0 && par1ItemStack.stackSize < slot );
 				
 				this.closeChest();
 				return par1ItemStack.stackSize < slot;
@@ -826,20 +828,20 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 		int size = par1ItemStack.stackSize;
 		int slot;
 		
-		if (par1ItemStack.getMaxStackSize() == 1)
+		if( par1ItemStack.getMaxStackSize() == 1 )
 		{
 			slot = this.getFirstEmptyStack();
 			
-			if (slot < 0)
+			if( slot < 0 )
 			{
 				this.closeChest();
 				return size;
 			}
 			else
 			{
-				if (this.ContainerItems[slot] == null)
+				if( this.ContainerItems[slot] == null )
 				{
-					this.ContainerItems[slot] = ItemStack.copyItemStack(par1ItemStack);
+					this.ContainerItems[slot] = ItemStack.copyItemStack( par1ItemStack );
 				}
 				
 				this.closeChest();
@@ -848,43 +850,43 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 		}
 		else
 		{
-			slot = this.storeItemStack(par1ItemStack);
+			slot = this.storeItemStack( par1ItemStack );
 			
-			if (slot < 0)
+			if( slot < 0 )
 			{
 				slot = this.getFirstEmptyStack();
 			}
 			
-			if (slot < 0)
+			if( slot < 0 )
 			{
 				this.closeChest();
 				return size;
 			}
 			else
 			{
-				if (this.ContainerItems[slot] == null)
+				if( this.ContainerItems[slot] == null )
 				{
-					this.ContainerItems[slot] = new ItemStack(itemID, 0, par1ItemStack.getItemDamage());
+					this.ContainerItems[slot] = new ItemStack( itemID, 0, par1ItemStack.getItemDamage() );
 					
-					if (par1ItemStack.hasTagCompound())
+					if( par1ItemStack.hasTagCompound() )
 					{
-						this.ContainerItems[slot].setTagCompound((NBTTagCompound) par1ItemStack.getTagCompound().copy());
+						this.ContainerItems[slot].setTagCompound( (NBTTagCompound) par1ItemStack.getTagCompound().copy() );
 					}
 				}
 				
 				int i = size;
 				
-				if (size > this.ContainerItems[slot].getMaxStackSize() - this.ContainerItems[slot].stackSize)
+				if( size > this.ContainerItems[slot].getMaxStackSize() - this.ContainerItems[slot].stackSize )
 				{
 					i = this.ContainerItems[slot].getMaxStackSize() - this.ContainerItems[slot].stackSize;
 				}
 				
-				if (i > this.getInventoryStackLimit() - this.ContainerItems[slot].stackSize)
+				if( i > this.getInventoryStackLimit() - this.ContainerItems[slot].stackSize )
 				{
 					i = this.getInventoryStackLimit() - this.ContainerItems[slot].stackSize;
 				}
 				
-				if (i == 0)
+				if( i == 0 )
 				{
 					this.closeChest();
 					return size;
@@ -906,15 +908,15 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	{
 		this.openChest();
 		
-		for (int i = 0; i < this.getSizeInventory(); ++i)
+		for( int i = 0; i < this.getSizeInventory(); ++i )
 		{
-			if (this.ContainerItems[i] != null
+			if( this.ContainerItems[i] != null
 					&& this.ContainerItems[i].itemID == par1ItemStack.itemID
 					&& this.ContainerItems[i].isStackable()
 					&& this.ContainerItems[i].stackSize < this.ContainerItems[i].getMaxStackSize()
 					&& this.ContainerItems[i].stackSize < this.getInventoryStackLimit()
-					&& (!this.ContainerItems[i].getHasSubtypes() || this.ContainerItems[i].getItemDamage() == par1ItemStack.getItemDamage())
-					&& ItemStack.areItemStackTagsEqual(this.ContainerItems[i], par1ItemStack))
+					&& ( !this.ContainerItems[i].getHasSubtypes() || this.ContainerItems[i].getItemDamage() == par1ItemStack.getItemDamage() )
+					&& ItemStack.areItemStackTagsEqual( this.ContainerItems[i], par1ItemStack ) )
 			{
 				this.closeChest();
 				return i;
