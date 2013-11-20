@@ -68,8 +68,12 @@ public class EntityLivingUtilityAIChastFarmer extends AIBaseEntityLivingUtility 
     //さとーきびとサボテン
     private List<ItemStack> getReed(World world, Block block, int targetPosX, int targetPosY, int targetPosZ) {
         ArrayList<ItemStack> res = new ArrayList<ItemStack>();
+        int count = 0;
         while (this.getBlockTargetPosition(targetPosX, ++targetPosY, targetPosZ) == block) {
-            res.addAll(this.getBlockDropped(world, block, targetPosX, targetPosY, targetPosZ));
+            count++;
+        }
+        while (0 < count--) {
+            res.addAll(this.getBlockDropped(world, block, targetPosX, targetPosY--, targetPosZ));
             this.theWorld.setBlockToAir(targetPosX, targetPosY, targetPosZ);
         }
         return res;
