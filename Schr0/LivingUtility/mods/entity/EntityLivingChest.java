@@ -10,6 +10,7 @@ import net.minecraft.entity.ai.EntityAIWander;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemFirework;
 import net.minecraft.item.ItemHoe;
 import net.minecraft.item.ItemSkull;
 import net.minecraft.item.ItemStack;
@@ -21,6 +22,7 @@ import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIChastFarmer;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAICollectItem;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIEatVillager;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIFindChest;
+import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIFireWork;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIFollowOwner;
 
 public class EntityLivingChest extends EntityLivingUtility
@@ -47,6 +49,8 @@ public class EntityLivingChest extends EntityLivingUtility
 	//農業！
 	public EntityLivingUtilityAIChastFarmer	AIFarmer		= new EntityLivingUtilityAIChastFarmer( this );
 	
+	//花火師！
+	public EntityLivingUtilityAIFireWork    AIFireWorker    = new EntityLivingUtilityAIFireWork(this);
 	public EntityLivingChest(World par1World)
 	{
 		super( par1World );
@@ -137,6 +141,13 @@ public class EntityLivingChest extends EntityLivingUtility
 					this.tasks.addTask( 4, AIEatVillager );
 					this.tasks.addTask( 5, AIWander );
 				}
+				
+				if( this.getHeldItem().getItem() instanceof ItemFirework)
+                {
+				  //メッセージの出力（独自）
+                    this.Information( this.getInvName() + " : Fire Work" );
+                    this.tasks.addTask(4, AIFireWorker);
+                }
 			}
 		}
 		//野生状態の場合
