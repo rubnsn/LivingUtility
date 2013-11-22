@@ -19,6 +19,7 @@ import net.minecraft.world.World;
 import Schr0.LivingUtility.mods.LivingUtility;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIChastFarmer;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAICollectItem;
+import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAISummonBomber;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIEatVillager;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIFindChest;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIFollowOwner;
@@ -46,6 +47,8 @@ public class EntityLivingChest extends EntityLivingUtility
 	public EntityLivingUtilityAIEatVillager	AIEatVillager	= new EntityLivingUtilityAIEatVillager( this );
 	//農業！
 	public EntityLivingUtilityAIChastFarmer	AIFarmer		= new EntityLivingUtilityAIChastFarmer( this );
+	//たすけて！
+	public EntityLivingUtilityAISummonBomber AIOptionCreate = new EntityLivingUtilityAISummonBomber(this);
 	
 	public EntityLivingChest(World par1World)
 	{
@@ -137,6 +140,16 @@ public class EntityLivingChest extends EntityLivingUtility
 					this.tasks.addTask( 4, AIEatVillager );
 					this.tasks.addTask( 5, AIWander );
 				}
+				
+				//『TNT』を持っている場合
+                if( this.getHeldItem().isItemEqual( new ItemStack( Block.tnt )))
+                {
+                  //メッセージの出力（独自）
+                    this.Information( this.getInvName() + " : Create Option" );
+                    this.tasks.addTask( 5, AIOptionCreate);
+                    this.tasks.addTask( 4, AIFollowOwner );
+                    
+                }
 			}
 		}
 		//野生状態の場合
