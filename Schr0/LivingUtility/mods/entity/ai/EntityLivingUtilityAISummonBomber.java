@@ -92,6 +92,7 @@ public class EntityLivingUtilityAISummonBomber extends AIBaseEntityLivingUtility
             entity.setPosition(this.theUtility.posX, this.theUtility.posY, this.theUtility.posZ);
             entity.setOwner("");
             entity.setTamed(true);
+            entity.setChild(true);
             entity.tasks.taskEntries.clear();
             entity.tasks.addTask(1, new AIBombing(entity, this.target));
             this.chiledList.addLast(entity);
