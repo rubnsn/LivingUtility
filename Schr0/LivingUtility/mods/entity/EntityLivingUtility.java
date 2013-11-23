@@ -15,7 +15,6 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.pathfinding.PathEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
-import Schr0.LivingUtility.mods.LivingUtility;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAILookAtTradePlayer;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAISit;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAITrade;
@@ -30,10 +29,10 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	private EntityPlayer			thePlayer;
 	
 	//内部インベントリのItemstack
-	public ItemStack[]				ContainerItems;
+	public ItemStack[]				containerItems;
 	
 	//元のブロックのItmeStack
-	private final ItemStack[]		BlockStack	= new ItemStack[ 1 ];
+	private final ItemStack[]		blockStack	= new ItemStack[ 1 ];
 	
 	//お座りのAI（オオカミ改変）
 	public EntityLivingUtilityAISit	aiSit		= new EntityLivingUtilityAISit( this );
@@ -45,7 +44,7 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 		//インベントリサイズの設定
 		if( this.getLivingInventrySize() != 0 )
 		{
-			this.ContainerItems = new ItemStack[ this.getLivingInventrySize() ];
+			this.containerItems = new ItemStack[ this.getLivingInventrySize() ];
 		}
 	}
 	
@@ -140,63 +139,16 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 		}
 	}
 	
-	//開閉のモーション（独自）
-	public void OpenMotion(boolean Flag)
-	{
-		//開閉の設定//
-		this.prev = this.lid;
-		float f = 0.4F;//開閉速度 (0.1F)
-		
-		if( Flag && this.lid == 0.0F )
-		{
-			//開く
-			this.setOpen( true );
-			this.lid++;
-		}
-		
-		if( !Flag && this.lid > 0.0F || Flag && this.lid < 1.0F )
-		{
-			float f1 = this.lid;
-			
-			if( Flag )
-			{
-				this.lid += f;
-			}
-			else
-			{
-				this.lid -= f;
-			}
-			
-			if( this.lid > 1.0F )
-			{
-				this.lid = 1.0F;
-			}
-			
-			float f2 = 0.5F;
-			
-			if( this.lid < f2 && f1 >= f2 )
-			{
-				//閉じる
-				this.setOpen( false );
-			}
-			
-			if( this.lid < 0.0F )
-			{
-				this.lid = 0.0F;
-			}
-		}
-	}
-	
 	//元のBlockのItemStackのset（独自）
 	public void setBlockStack(ItemStack par2ItemStack)
 	{
-		this.BlockStack[0] = par2ItemStack;
+		this.blockStack[0] = par2ItemStack;
 	}
 	
 	//元のBlockのItemStackのget（独自）
 	public ItemStack getBlockStack()
 	{
-		return this.BlockStack[0];
+		return this.blockStack[0];
 	}
 	
 	//SEの出力（独自）
@@ -210,8 +162,12 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	{
 		if( !this.worldObj.isRemote )
 		{
-			//メッセージ
-			LivingUtility.proxy.addMessage( Message );
+			//オーナーが存在している ＆ EntityPlayerの場合
+			if( this.getOwner() != null && this.getOwner() instanceof EntityPlayer )
+			{
+				//メッセージ
+				( (EntityPlayer) this.getOwner() ).addChatMessage( Message );
+			}
 		}
 	}
 	
@@ -260,7 +216,7 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	//dataWatcherの処理
 	//16 : 飼い慣らしの判定
 	//17 : オーナー
-	//18 : モード
+	//18 : 子供状態
 	//19 : 開閉状態
 	@Override
 	protected void entityInit()
@@ -268,7 +224,7 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 		super.entityInit();
 		this.dataWatcher.addObject( 16, Byte.valueOf( (byte) 0 ) );
 		this.dataWatcher.addObject( 17, "" );
-		this.dataWatcher.addObject( 18, new Integer( 0 ) );
+		this.dataWatcher.addObject( 18, Byte.valueOf( (byte) 0 ) );
 		this.dataWatcher.addObject( 19, Byte.valueOf( (byte) 0 ) );
 	}
 	
@@ -335,16 +291,23 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 		return this.worldObj.getPlayerEntityByName( this.getOwnerName() );
 	}
 	
-	//ModeをGet 18
-	public int getMode()
+	//子供状態をSet 18
+	public void setChild(boolean par1)
 	{
-		return this.dataWatcher.getWatchableObjectInt( 18 );
+		this.dataWatcher.updateObject( 18, Byte.valueOf( (byte) ( par1 ? 1 : 0 ) ) );
+		
+		if( par1 && this.worldObj != null && !this.worldObj.isRemote )
+		{
+			//サイズの変更
+			this.setSize( 0.5F, 0.5F );
+		}
 	}
 	
-	//ModeをSet 18
-	public void setMode(int par1)
+	//子供状態の判定
+	@Override
+	public boolean isChild()
 	{
-		this.dataWatcher.updateObject( 18, Integer.valueOf( par1 ) );
+		return this.getDataWatcher().getWatchableObjectByte( 18 ) == 1;
 	}
 	
 	//開閉の判定 19
@@ -390,18 +353,21 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 		//お座り状態
 		par1NBTTagCompound.setBoolean( "Sitting", this.isSitting() );
 		
+		//子供状態
+		if( this.isChild() )
+		{
+			par1NBTTagCompound.setBoolean( "IsChild", true );
+		}
+		
 		//開閉状態
 		par1NBTTagCompound.setBoolean( "Open", this.isOpen() );
-		
-		//Mode
-		par1NBTTagCompound.setInteger( "Mode", this.getMode() );
 		
 		//元のBlockのItemStack
 		NBTTagList par1nbttaglistA = new NBTTagList();
 		NBTTagCompound par1nbttaglistB = new NBTTagCompound();
-		if( this.BlockStack[0] != null )
+		if( this.blockStack[0] != null )
 		{
-			this.BlockStack[0].writeToNBT( par1nbttaglistB );
+			this.blockStack[0].writeToNBT( par1nbttaglistB );
 		}
 		par1nbttaglistA.appendTag( par1nbttaglistB );
 		par1NBTTagCompound.setTag( "BlockStack", par1nbttaglistA );
@@ -430,8 +396,11 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 		this.aiSit.setSitting( par1NBTTagCompound.getBoolean( "Sitting" ) );
 		this.setSitting( par1NBTTagCompound.getBoolean( "Sitting" ) );
 		
-		//Mode
-		this.setMode( par1NBTTagCompound.getInteger( "Mode" ) );
+		//子供状態
+		if( par1NBTTagCompound.getBoolean( "IsChild" ) )
+		{
+			this.setChild( true );
+		}
 		
 		//開閉状態
 		this.setOpen( par1NBTTagCompound.getBoolean( "Open" ) );
@@ -441,7 +410,7 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 		if( par1NBTTagCompound.hasKey( "BlockStack" ) )
 		{
 			par1nbttaglistA = par1NBTTagCompound.getTagList( "BlockStack" );
-			this.BlockStack[0] = ItemStack.loadItemStackFromNBT( (NBTTagCompound) par1nbttaglistA.tagAt( 0 ) );
+			this.blockStack[0] = ItemStack.loadItemStackFromNBT( (NBTTagCompound) par1nbttaglistA.tagAt( 0 ) );
 		}
 		
 		//AIの切り替えの処理(独自)
@@ -544,7 +513,7 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	{
 		// ItemStackのNBTを取得、空の中身を作成しておく
 		NBTTagCompound nbttagcompound = this.getEntityData();
-		this.ContainerItems = new ItemStack[ this.getSizeInventory() ];
+		this.containerItems = new ItemStack[ this.getSizeInventory() ];
 		
 		// NBTが無ければ中身は空のままで
 		if( nbttagcompound == null )
@@ -557,9 +526,9 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 		{
 			NBTTagCompound nbttagcompound1 = (NBTTagCompound) nbttaglist.tagAt( i );
 			int j = nbttagcompound1.getByte( "Slot" ) & 0xff;
-			if( j >= 0 && j < this.ContainerItems.length )
+			if( j >= 0 && j < this.containerItems.length )
 			{
-				this.ContainerItems[j] = ItemStack.loadItemStackFromNBT( nbttagcompound1 );
+				this.containerItems[j] = ItemStack.loadItemStackFromNBT( nbttagcompound1 );
 			}
 		}
 	}
@@ -568,13 +537,13 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	public void save()
 	{
 		NBTTagList nbttaglist = new NBTTagList();
-		for( int i = 0; i < this.ContainerItems.length; i++ )
+		for( int i = 0; i < this.containerItems.length; i++ )
 		{
-			if( this.ContainerItems[i] != null )
+			if( this.containerItems[i] != null )
 			{
 				NBTTagCompound nbttagcompound1 = new NBTTagCompound();
 				nbttagcompound1.setByte( "Slot", (byte) i );
-				this.ContainerItems[i].writeToNBT( nbttagcompound1 );
+				this.containerItems[i].writeToNBT( nbttagcompound1 );
 				nbttaglist.appendTag( nbttagcompound1 );
 			}
 		}
@@ -602,37 +571,37 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	@Override
 	public int getSizeInventory()
 	{
-		return this.ContainerItems.length;
+		return this.containerItems.length;
 	}
 	
 	//中身のItemStack
 	@Override
 	public ItemStack getStackInSlot(int par1)
 	{
-		return this.ContainerItems[par1];
+		return this.containerItems[par1];
 	}
 	
 	//???
 	@Override
 	public ItemStack decrStackSize(int par1, int par2)
 	{
-		if( this.ContainerItems[par1] != null )
+		if( this.containerItems[par1] != null )
 		{
 			ItemStack itemstack;
 			
-			if( this.ContainerItems[par1].stackSize <= par2 )
+			if( this.containerItems[par1].stackSize <= par2 )
 			{
-				itemstack = this.ContainerItems[par1];
-				this.ContainerItems[par1] = null;
+				itemstack = this.containerItems[par1];
+				this.containerItems[par1] = null;
 				return itemstack;
 			}
 			else
 			{
-				itemstack = this.ContainerItems[par1].splitStack( par2 );
+				itemstack = this.containerItems[par1].splitStack( par2 );
 				
-				if( this.ContainerItems[par1].stackSize == 0 )
+				if( this.containerItems[par1].stackSize == 0 )
 				{
-					this.ContainerItems[par1] = null;
+					this.containerItems[par1] = null;
 				}
 				
 				return itemstack;
@@ -648,10 +617,10 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	@Override
 	public ItemStack getStackInSlotOnClosing(int par1)
 	{
-		if( this.ContainerItems[par1] != null )
+		if( this.containerItems[par1] != null )
 		{
-			ItemStack itemstack = this.ContainerItems[par1];
-			this.ContainerItems[par1] = null;
+			ItemStack itemstack = this.containerItems[par1];
+			this.containerItems[par1] = null;
 			return itemstack;
 		}
 		else
@@ -664,7 +633,7 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 	@Override
 	public void setInventorySlotContents(int par1, ItemStack par2ItemStack)
 	{
-		this.ContainerItems[par1] = par2ItemStack;
+		this.containerItems[par1] = par2ItemStack;
 		
 		if( par2ItemStack != null && par2ItemStack.stackSize > this.getInventoryStackLimit() )
 		{
@@ -757,7 +726,7 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 		
 		for( int i = 0; i < this.getSizeInventory(); ++i )
 		{
-			if( this.ContainerItems[i] == null )
+			if( this.containerItems[i] == null )
 			{
 				this.closeChest();
 				return i;
@@ -792,7 +761,7 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 				
 				if( slot >= 0 )
 				{
-					this.ContainerItems[slot] = ItemStack.copyItemStack( par1ItemStack );
+					this.containerItems[slot] = ItemStack.copyItemStack( par1ItemStack );
 					par1ItemStack.stackSize = 0;
 					
 					this.closeChest();
@@ -839,9 +808,9 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 			}
 			else
 			{
-				if( this.ContainerItems[slot] == null )
+				if( this.containerItems[slot] == null )
 				{
-					this.ContainerItems[slot] = ItemStack.copyItemStack( par1ItemStack );
+					this.containerItems[slot] = ItemStack.copyItemStack( par1ItemStack );
 				}
 				
 				this.closeChest();
@@ -864,26 +833,26 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 			}
 			else
 			{
-				if( this.ContainerItems[slot] == null )
+				if( this.containerItems[slot] == null )
 				{
-					this.ContainerItems[slot] = new ItemStack( itemID, 0, par1ItemStack.getItemDamage() );
+					this.containerItems[slot] = new ItemStack( itemID, 0, par1ItemStack.getItemDamage() );
 					
 					if( par1ItemStack.hasTagCompound() )
 					{
-						this.ContainerItems[slot].setTagCompound( (NBTTagCompound) par1ItemStack.getTagCompound().copy() );
+						this.containerItems[slot].setTagCompound( (NBTTagCompound) par1ItemStack.getTagCompound().copy() );
 					}
 				}
 				
 				int i = size;
 				
-				if( size > this.ContainerItems[slot].getMaxStackSize() - this.ContainerItems[slot].stackSize )
+				if( size > this.containerItems[slot].getMaxStackSize() - this.containerItems[slot].stackSize )
 				{
-					i = this.ContainerItems[slot].getMaxStackSize() - this.ContainerItems[slot].stackSize;
+					i = this.containerItems[slot].getMaxStackSize() - this.containerItems[slot].stackSize;
 				}
 				
-				if( i > this.getInventoryStackLimit() - this.ContainerItems[slot].stackSize )
+				if( i > this.getInventoryStackLimit() - this.containerItems[slot].stackSize )
 				{
-					i = this.getInventoryStackLimit() - this.ContainerItems[slot].stackSize;
+					i = this.getInventoryStackLimit() - this.containerItems[slot].stackSize;
 				}
 				
 				if( i == 0 )
@@ -894,7 +863,7 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 				else
 				{
 					size -= i;
-					this.ContainerItems[slot].stackSize += i;
+					this.containerItems[slot].stackSize += i;
 					
 					this.closeChest();
 					return size;
@@ -910,13 +879,13 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 		
 		for( int i = 0; i < this.getSizeInventory(); ++i )
 		{
-			if( this.ContainerItems[i] != null
-					&& this.ContainerItems[i].itemID == par1ItemStack.itemID
-					&& this.ContainerItems[i].isStackable()
-					&& this.ContainerItems[i].stackSize < this.ContainerItems[i].getMaxStackSize()
-					&& this.ContainerItems[i].stackSize < this.getInventoryStackLimit()
-					&& ( !this.ContainerItems[i].getHasSubtypes() || this.ContainerItems[i].getItemDamage() == par1ItemStack.getItemDamage() )
-					&& ItemStack.areItemStackTagsEqual( this.ContainerItems[i], par1ItemStack ) )
+			if( this.containerItems[i] != null
+					&& this.containerItems[i].itemID == par1ItemStack.itemID
+					&& this.containerItems[i].isStackable()
+					&& this.containerItems[i].stackSize < this.containerItems[i].getMaxStackSize()
+					&& this.containerItems[i].stackSize < this.getInventoryStackLimit()
+					&& ( !this.containerItems[i].getHasSubtypes() || this.containerItems[i].getItemDamage() == par1ItemStack.getItemDamage() )
+					&& ItemStack.areItemStackTagsEqual( this.containerItems[i], par1ItemStack ) )
 			{
 				this.closeChest();
 				return i;
