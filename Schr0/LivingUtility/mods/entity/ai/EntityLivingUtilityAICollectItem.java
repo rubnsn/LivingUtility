@@ -11,7 +11,7 @@ public class EntityLivingUtilityAICollectItem extends AIBaseEntityLivingUtility
 {
 	private EntityItem			theItem;
 	private final float			speed;
-	private final ItemStack		HeldItem;
+	private final ItemStack		heldItem;
 	
 	private final PathNavigate	pathfinder;
 	private boolean				avoidsWater;
@@ -28,7 +28,7 @@ public class EntityLivingUtilityAICollectItem extends AIBaseEntityLivingUtility
 	public EntityLivingUtilityAICollectItem(EntityLivingUtility Utility, float moveSpeed)
 	{
 		super( Utility );
-		this.HeldItem = Utility.getHeldItem();
+		this.heldItem = Utility.getHeldItem();
 		this.speed = moveSpeed;
 		this.pathfinder = Utility.getNavigator();
 		this.setMutexBits( 2 );
@@ -226,9 +226,6 @@ public class EntityLivingUtilityAICollectItem extends AIBaseEntityLivingUtility
 				theItem = null;
 			}
 		}
-		
-		//開閉のモーション（独自）
-		this.theUtility.OpenMotion( isCollectItem );
 		
 		//開閉の設定//
 		this.prev = this.lid;

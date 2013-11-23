@@ -39,16 +39,17 @@ public class EntityLivingChest extends EntityLivingUtility
 	//自由行動			(1)
 	//アイテム回収		(2)
 	//チェストの走査	(2)
-	public EntityLivingUtilityAIFollowOwner	AIFollowOwner	= new EntityLivingUtilityAIFollowOwner( this, 1.25F, 2.0F, 2.0F );
-	public EntityAIWander					AIWander		= new EntityAIWander( this, 1.25F );
-	public EntityLivingUtilityAICollectItem	AICollectItem	= new EntityLivingUtilityAICollectItem( this, 1.25F );
-	public EntityLivingUtilityAIFindChest	AIFindChest		= new EntityLivingUtilityAIFindChest( this, 1.25F );
+	public EntityLivingUtilityAIFollowOwner	aiFollowOwner	= new EntityLivingUtilityAIFollowOwner( this, 1.25F, 2.0F, 2.0F );
+	public EntityAIWander					aiWander		= new EntityAIWander( this, 1.25F );
+	public EntityLivingUtilityAICollectItem	aiCollectItem	= new EntityLivingUtilityAICollectItem( this, 1.25F );
+	public EntityLivingUtilityAIFindChest	aiFindChest		= new EntityLivingUtilityAIFindChest( this, 1.25F );
 	//実食！
-	public EntityLivingUtilityAIEatVillager	AIEatVillager	= new EntityLivingUtilityAIEatVillager( this );
+	public EntityLivingUtilityAIEatVillager	aiEatVillager	= new EntityLivingUtilityAIEatVillager( this );
 	//農業！
-	public EntityLivingUtilityAIChastFarmer	AIFarmer		= new EntityLivingUtilityAIChastFarmer( this );
+    public EntityLivingUtilityAIChastFarmer aiFarmer        = new EntityLivingUtilityAIChastFarmer( this );
 	//たすけて！
-	public EntityLivingUtilityAISummonBomber AIOptionCreate = new EntityLivingUtilityAISummonBomber(this);
+	public EntityLivingUtilityAISummonBomber aiOptionCreate = new EntityLivingUtilityAISummonBomber(this);
+
 	
 	public EntityLivingChest(World par1World)
 	{
@@ -86,7 +87,7 @@ public class EntityLivingChest extends EntityLivingUtility
 				this.Information( this.getInvName() + " : Follow" );
 				
 				// 4 追従
-				this.tasks.addTask( 4, AIFollowOwner );
+				this.tasks.addTask( 4, aiFollowOwner );
 			}
 			//手に何か持って『いる』場合
 			else
@@ -99,8 +100,8 @@ public class EntityLivingChest extends EntityLivingUtility
 					
 					// 4 アイテム回収
 					// 5 自由行動
-					this.tasks.addTask( 4, AICollectItem );
-					this.tasks.addTask( 5, AIWander );
+					this.tasks.addTask( 4, aiCollectItem );
+					this.tasks.addTask( 5, aiWander );
 				}
 				
 				//『チェスト』を持っている場合
@@ -112,9 +113,9 @@ public class EntityLivingChest extends EntityLivingUtility
 					// 4 チェストの走査
 					// 5 アイテム回収
 					// 6 自由行動
-					this.tasks.addTask( 4, AIFindChest );
-					this.tasks.addTask( 5, AICollectItem );
-					this.tasks.addTask( 6, AIWander );
+					this.tasks.addTask( 4, aiFindChest );
+					this.tasks.addTask( 5, aiCollectItem );
+					this.tasks.addTask( 6, aiWander );
 				}
 				
 				//『クワ』を持っている場合
@@ -125,8 +126,8 @@ public class EntityLivingChest extends EntityLivingUtility
 					
 					// 4 農業
 					// 5 自由行動
-					this.tasks.addTask( 4, AIFarmer );
-					this.tasks.addTask( 5, AIWander );
+					this.tasks.addTask( 4, aiFarmer );
+					this.tasks.addTask( 5, aiWander );
 				}
 				
 				//『スカル』を持っている場合
@@ -137,8 +138,8 @@ public class EntityLivingChest extends EntityLivingUtility
 					
 					// 4 村人食い
 					// 5 自由行動
-					this.tasks.addTask( 4, AIEatVillager );
-					this.tasks.addTask( 5, AIWander );
+					this.tasks.addTask( 4, aiEatVillager );
+					this.tasks.addTask( 5, aiWander );
 				}
 				
 				//『TNT』を持っている場合
@@ -146,8 +147,8 @@ public class EntityLivingChest extends EntityLivingUtility
                 {
                   //メッセージの出力（独自）
                     this.Information( this.getInvName() + " : Create Option" );
-                    this.tasks.addTask( 5, AIOptionCreate);
-                    this.tasks.addTask( 4, AIFollowOwner );
+                    this.tasks.addTask( 5, aiOptionCreate);
+                    this.tasks.addTask( 4, aiFollowOwner );
                     
                 }
 			}
@@ -157,8 +158,8 @@ public class EntityLivingChest extends EntityLivingUtility
 		{
 			// 5 アイテム回収
 			// 6 自由行動
-			this.tasks.addTask( 5, AICollectItem );
-			this.tasks.addTask( 6, AIWander );
+			this.tasks.addTask( 5, aiCollectItem );
+			this.tasks.addTask( 6, aiWander );
 		}
 	}
 	
@@ -544,6 +545,7 @@ public class EntityLivingChest extends EntityLivingUtility
 				this.lid = 0.0F;
 			}
 		}
+		
 		//particleを再生させよう!
 		if( worldObj.isRemote )
 		{
