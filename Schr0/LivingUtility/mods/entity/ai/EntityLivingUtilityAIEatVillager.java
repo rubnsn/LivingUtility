@@ -9,6 +9,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIAvoidEntity;
 import net.minecraft.entity.passive.EntityVillager;
@@ -24,7 +25,7 @@ public class EntityLivingUtilityAIEatVillager extends AIBaseEntityLivingUtility 
     //ドロップ開始率
     private static final float DROP_RATE = 0.1F;
     //ドロップ連鎖率
-    private static final float CHAIN_DROP_RATE = 0.25F;
+    private static final float CHAIN_DROP_RATE = 0.3F;
     //ドロップアイテムマップ
     private static final Multimap<Integer, ItemStack> DROP_MAP = ArrayListMultimap.create();
     static {
@@ -110,11 +111,17 @@ public class EntityLivingUtilityAIEatVillager extends AIBaseEntityLivingUtility 
                 if (this.theUtility.getDistanceToEntity(entity) < EntityLivingUtilityAIEatVillager.EAT_RANGE) {
                     capture = true;
                     //頑張って逃げよう！
-                    entity.tasks.addTask(0, new EntityAIAvoidEntity(this.theUtility, this.theUtility.getClass(), 8.0F, 1.2D, 1.2D));
+                    entity.tasks.taskEntries.clear();
+                    if (entity instanceof EntityCreature) {
+                        entity.tasks.addTask(0, new EntityAIAvoidEntity((EntityCreature) this.entity, this.theUtility.getClass(), 8.0F, 1.2D, 1.2D));
+                    }
                     time = TIME_LIMIT;
                 }
             } else {
-                entity.attackEntityFrom(DamageSource.magic, 1);
+                if (0 < entity.getHealth()) {
+                    entity.rotationYaw += 60;
+                }
+                entity.attackEntityFrom(DamageSource.magic, 2F);
                 //もぐもぐ
                 this.eatAction();
                 //剥ぎ取りタイム
