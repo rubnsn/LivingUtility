@@ -50,7 +50,7 @@ public class EntityLivingChest extends EntityLivingUtility
 	public EntityLivingUtilityAIChastFarmer	aiFarmer		= new EntityLivingUtilityAIChastFarmer( this );
 	
 	//花火師！
-	public EntityLivingUtilityAIFireWork    AIFireWorker    = new EntityLivingUtilityAIFireWork(this);
+	public EntityLivingUtilityAIFireWork    aiFireWorker    = new EntityLivingUtilityAIFireWork(this);
 	public EntityLivingChest(World par1World)
 	{
 		super( par1World );
@@ -146,7 +146,7 @@ public class EntityLivingChest extends EntityLivingUtility
                 {
 				  //メッセージの出力（独自）
                     this.Information( this.getInvName() + " : Fire Work" );
-                    this.tasks.addTask(4, AIFireWorker);
+                    this.tasks.addTask(4, aiFireWorker);
                 }
 			}
 		}
