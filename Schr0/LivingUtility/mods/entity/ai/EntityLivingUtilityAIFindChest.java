@@ -1,7 +1,13 @@
 package Schr0.LivingUtility.mods.entity.ai;
 
+import net.minecraft.block.Block;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.ai.EntityAIBase;
+import net.minecraft.entity.ai.EntityAITasks;
+import net.minecraft.entity.ai.EntityAIWander;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.tileentity.TileEntity;
@@ -10,7 +16,7 @@ import net.minecraft.tileentity.TileEntityHopper;
 import net.minecraft.world.World;
 import Schr0.LivingUtility.mods.entity.EntityLivingUtility;
 
-public class EntityLivingUtilityAIFindChest extends AIBaseEntityLivingUtility
+public class EntityLivingUtilityAIFindChest extends AIBaseEntityLivingUtility implements ILivingUtilityAI
 {
 	private TileEntityChest		targetChest;
 	private final float			speed;
@@ -326,5 +332,26 @@ public class EntityLivingUtilityAIFindChest extends AIBaseEntityLivingUtility
 	{
 		return par0ItemStack.itemID != par1ItemStack.itemID ? false : ( par0ItemStack.getItemDamage() != par1ItemStack.getItemDamage() ? false : ( par0ItemStack.stackSize > par0ItemStack.getMaxStackSize() ? false : ItemStack.areItemStackTagsEqual( par0ItemStack, par1ItemStack ) ) );
 	}
+	
+    @Override
+    public boolean hasExecution(ItemStack handItm) {
+        return handItm != null ?handItm.isItemEqual( new ItemStack( Block.chest ) ):false;
+    }
+
+    @Override
+    public int getPriority() {
+        return 4;
+    }
+
+    @Override
+    public String getMessage() {
+        return "FindChest";
+    }
+
+    @Override
+    public void addSubTasks(EntityLivingUtility entity, EntityAITasks tasks) {
+        tasks.addTask(5, new EntityLivingUtilityAICollectItem( entity, 1.25F ));
+        tasks.addTask(6, new EntityAIWander(entity, 1.25F));
+    }
 	
 }

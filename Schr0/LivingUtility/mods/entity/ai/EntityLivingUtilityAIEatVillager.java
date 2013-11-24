@@ -8,15 +8,21 @@ import Schr0.LivingUtility.mods.entity.EntityLivingUtility;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.EntityAIAvoidEntity;
+import net.minecraft.entity.ai.EntityAIBase;
+import net.minecraft.entity.ai.EntityAITasks;
+import net.minecraft.entity.ai.EntityAIWander;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemHoe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 
-public class EntityLivingUtilityAIEatVillager extends AIBaseEntityLivingUtility {
+public class EntityLivingUtilityAIEatVillager extends AIBaseEntityLivingUtility
+        implements ILivingUtilityAI {
     //捕食開始距離
     private static final float EAT_RANGE = 1F;
     //おっかけ時間制限
@@ -167,4 +173,25 @@ public class EntityLivingUtilityAIEatVillager extends AIBaseEntityLivingUtility 
     private ItemStack getRandomDrop(int reality) {
         return (ItemStack) DROP_MAP.get(reality).toArray()[theWorld.rand.nextInt(DROP_MAP.get(reality).size())];
     }
+
+    @Override
+    public boolean hasExecution(ItemStack handItm) {
+        return handItm != null ? handItm.getItem() instanceof ItemHoe : false;
+    }
+
+    @Override
+    public int getPriority() {
+        return 4;
+    }
+
+    @Override
+    public String getMessage() {
+        return "Eat Villager";
+    }
+
+    @Override
+    public void addSubTasks(EntityLivingUtility entity, EntityAITasks tasks) {
+        tasks.addTask(5, new EntityAIWander(entity, 1.25F));
+    }
+
 }

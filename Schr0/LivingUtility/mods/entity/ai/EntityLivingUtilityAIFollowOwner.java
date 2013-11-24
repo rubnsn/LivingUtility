@@ -1,11 +1,17 @@
 package Schr0.LivingUtility.mods.entity.ai;
 
+import java.util.List;
+
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.ai.EntityAIBase;
+import net.minecraft.entity.ai.EntityAITasks;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.util.MathHelper;
 import Schr0.LivingUtility.mods.entity.EntityLivingUtility;
 
-public class EntityLivingUtilityAIFollowOwner extends AIBaseEntityLivingUtility
+public class EntityLivingUtilityAIFollowOwner extends AIBaseEntityLivingUtility implements ILivingUtilityAI
 {
 	private EntityLivingBase	theOwner;
 	private final float			moveSpeed;
@@ -108,4 +114,27 @@ public class EntityLivingUtilityAIFollowOwner extends AIBaseEntityLivingUtility
 			}
 		}
 	}
+
+    @Override
+    public boolean hasExecution(ItemStack handItm) {
+        return handItm==null;
+    }
+
+    @Override
+    public int getPriority() {
+        return 4;
+    }
+
+    @Override
+    public String getMessage() {
+        return "Follow";
+    }
+
+    @Override
+    public void addSubTasks(EntityLivingUtility entity,EntityAITasks tasks) {
+        
+    }
+
+
+
 }

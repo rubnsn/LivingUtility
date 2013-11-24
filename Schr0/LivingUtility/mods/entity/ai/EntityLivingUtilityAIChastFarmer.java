@@ -4,12 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.ai.EntityAIBase;
+import net.minecraft.entity.ai.EntityAITasks;
+import net.minecraft.entity.ai.EntityAIWander;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemHoe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import Schr0.LivingUtility.mods.entity.EntityLivingUtility;
 
-public class EntityLivingUtilityAIChastFarmer extends AIBaseEntityLivingUtility {
+public class EntityLivingUtilityAIChastFarmer extends AIBaseEntityLivingUtility
+        implements ILivingUtilityAI {
     //再実行間隔
     private final static int COOL_TIME = 40;
     private int timer;
@@ -106,4 +111,25 @@ public class EntityLivingUtilityAIChastFarmer extends AIBaseEntityLivingUtility 
     private List<ItemStack> getBlockDropped(World world, Block block, int targetPosX, int targetPosY, int targetPosZ) {
         return block.getBlockDropped(world, targetPosX, targetPosY, targetPosZ, world.getBlockMetadata(targetPosX, targetPosY, targetPosZ), 0);
     }
+
+    @Override
+    public boolean hasExecution(ItemStack handItm) {
+        return handItm != null ? handItm.getItem() instanceof ItemHoe : false;
+    }
+
+    @Override
+    public int getPriority() {
+        return 4;
+    }
+
+    @Override
+    public String getMessage() {
+        return "Farmer";
+    }
+
+    @Override
+    public void addSubTasks(EntityLivingUtility entity, EntityAITasks tasks) {
+        tasks.addTask(5, new EntityAIWander(entity, 1.25F));
+    }
+
 }

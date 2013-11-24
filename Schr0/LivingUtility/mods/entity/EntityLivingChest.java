@@ -2,10 +2,12 @@ package Schr0.LivingUtility.mods.entity;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.PriorityQueue;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.EntityAIWander;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,14 +19,18 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import Schr0.LivingUtility.mods.LivingUtility;
+import Schr0.LivingUtility.mods.entity.ai.AIComparator;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIChastFarmer;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAICollectItem;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIEatVillager;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIFindChest;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIFollowOwner;
+import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIFreedom;
+import Schr0.LivingUtility.mods.entity.ai.ILivingUtilityAI;
 
 public class EntityLivingChest extends EntityLivingUtility
 {
+    private PriorityQueue<ILivingUtilityAI> aiQueue=new PriorityQueue<ILivingUtilityAI>(6,new AIComparator());
 	//蓋の開閉の変数(独自)
 	private float							prev;
 	private float							lid;
@@ -76,6 +82,23 @@ public class EntityLivingChest extends EntityLivingUtility
 		//飼いならし状態の場合
 		if( this.isTamed() )
 		{
+		    if(aiQueue.isEmpty()){
+                this.aiInit();
+            }
+		    for(ILivingUtilityAI ilu:aiQueue){
+                if(ilu.hasExecution(this.getHeldItem())){
+                    System.out.println(ilu+ilu.getMessage());
+                    if(ilu.getMessage()!=null){
+                        this.Information( this.getInvName() +" : "+ ilu.getMessage() );
+                    }
+                    if(ilu instanceof EntityAIBase){
+                        this.tasks.addTask(ilu.getPriority(), (EntityAIBase) ilu);
+                    }
+                    ilu.addSubTasks(this,this.tasks);
+                    return;
+                }
+            }
+		    /*
 			//手に何も持って『いない』場合
 			if( this.getHeldItem() == null )
 			{
@@ -137,7 +160,8 @@ public class EntityLivingChest extends EntityLivingUtility
 					this.tasks.addTask( 4, aiEatVillager );
 					this.tasks.addTask( 5, aiWander );
 				}
-			}
+				
+			}*/
 		}
 		//野生状態の場合
 		else
@@ -560,6 +584,14 @@ public class EntityLivingChest extends EntityLivingUtility
 	{
 		super.entityInit();
 		this.dataWatcher.addObject( 30, "" );
+	}
+	
+	private void aiInit(){
+	    aiQueue.add(aiFollowOwner);
+	    aiQueue.add(aiFindChest);
+	    aiQueue.add(aiEatVillager);
+	    aiQueue.add(aiFarmer);
+	    aiQueue.add(new EntityLivingUtilityAIFreedom());
 	}
 	
 	//蓋の角度をセット
