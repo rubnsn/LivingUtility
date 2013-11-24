@@ -7,7 +7,7 @@ import net.minecraft.entity.ai.EntityAIWander;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
-public class EntityLivingUtilityAIFreedom implements ILivingUtilityAI {
+public class ModeFreedom implements ILivingUtilityAI {
 
     @Override
     public boolean hasExecution(ItemStack handItm) {
@@ -25,9 +25,9 @@ public class EntityLivingUtilityAIFreedom implements ILivingUtilityAI {
     }
 
     @Override
-    public void addTasks(EntityLivingUtility entity, EntityAITasks tasks) {
-        tasks.addTask(4, new EntityLivingUtilityAICollectItem(entity, 1.25F));
-        tasks.addTask(5, new EntityAIWander(entity, 1.25F));
+    public void addTasks(EntityLivingUtility entity) {
+        entity.tasks.addTask(4, new EntityLivingUtilityAICollectItem(entity, 1.25F));
+        entity.tasks.addTask(5, new EntityAIWander(entity, 1.25F));
     }
 
 }

@@ -21,12 +21,12 @@ import net.minecraft.item.ItemHoe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 
-public class EntityLivingUtilityAIEatVillager extends AIBaseEntityLivingUtility
-        implements ILivingUtilityAI {
+public class EntityLivingUtilityAIEatVillager extends AIBaseEntityLivingUtility {
     //捕食開始距離
     private static final float EAT_RANGE = 1F;
     //おっかけ時間制限
     private static final int TIME_LIMIT = 600;
+    private static final int COOL_TIME=20;
     //ドロップ開始率
     private static final float DROP_RATE = 0.1F;
     //ドロップ連鎖率
@@ -65,25 +65,28 @@ public class EntityLivingUtilityAIEatVillager extends AIBaseEntityLivingUtility
     //つかまえた
     private boolean capture;
     //おっかけ時間
-    private int time;
+    private int timer;
     //蓋の進行方向
     private boolean directionCover;
 
     public EntityLivingUtilityAIEatVillager(EntityLivingUtility LivingUtility) {
         super(LivingUtility);
-        capture = false;
+        this.capture = false;
     }
 
     @Override
     public boolean shouldExecute() {
         this.entity = null;
-        float minDistance = 100;
-        //最短距離の獲物を探そう！
-        for (Entity e : this.getInRangeEntitys(5, 2, 5)) {
-            if (e instanceof EntityVillager) {
-                if (this.theUtility.getDistanceToEntity(e) < minDistance) {
-                    minDistance = this.theUtility.getDistanceToEntity(e);
-                    this.entity = (EntityLiving) e;
+        if(this.timer--<0){
+            this.timer=COOL_TIME;
+            float minDistance = 100;
+            //最短距離の獲物を探そう！
+            for (Entity e : this.getInRangeEntitys(5, 2, 5)) {
+                if (e instanceof EntityVillager) {
+                    if (this.theUtility.getDistanceToEntity(e) < minDistance) {
+                        minDistance = this.theUtility.getDistanceToEntity(e);
+                        this.entity = (EntityLiving) e;
+                    }
                 }
             }
         }
@@ -96,16 +99,23 @@ public class EntityLivingUtilityAIEatVillager extends AIBaseEntityLivingUtility
 
     @Override
     public void startExecuting() {
-        time = 0;
+        this.timer = 0;
     }
 
     @Override
     public boolean continueExecuting() {
-        return entity != null && time++ < TIME_LIMIT || capture;
+        return entity != null&& !this.entity.isDead && timer++ < TIME_LIMIT || capture;
     }
 
     @Override
     public void resetTask() {
+        this.entity = null;
+        ((EntityLivingChest) this.theUtility).setOpen(false);
+        this.capture = false;
+        //パーティクルを止める
+        this.theUtility.getDataWatcher().updateObject(30, "");
+        this.theUtility.getNavigator().clearPathEntity();
+        this.timer = 0;
     }
 
     @Override
@@ -117,7 +127,7 @@ public class EntityLivingUtilityAIEatVillager extends AIBaseEntityLivingUtility
                     capture = true;
                     //頑張って逃げよう！
                     entity.tasks.addTask(0, new EntityAIAvoidEntity(this.theUtility, this.theUtility.getClass(), 8.0F, 1.2D, 1.2D));
-                    time = TIME_LIMIT;
+                    timer = TIME_LIMIT;
                 }
             } else {
                 entity.attackEntityFrom(DamageSource.magic, 1);
@@ -129,12 +139,8 @@ public class EntityLivingUtilityAIEatVillager extends AIBaseEntityLivingUtility
                 }
                 //お食事終了！
                 if (this.entity.isDead) {
-                    this.entity = null;
-                    capture = false;
                     this.theWorld.playSoundAtEntity(this.theUtility, "random.burp", 1.5F, this.theWorld.rand.nextFloat() * 0.1F + 0.9F);
-                    ((EntityLivingChest) this.theUtility).setOpen(false);
-                    //パーティクルを止める
-                    this.theUtility.getDataWatcher().updateObject(30, "");
+                    capture = false;
                 }
             }
         }
@@ -172,27 +178,6 @@ public class EntityLivingUtilityAIEatVillager extends AIBaseEntityLivingUtility
 
     private ItemStack getRandomDrop(int reality) {
         return (ItemStack) DROP_MAP.get(reality).toArray()[theWorld.rand.nextInt(DROP_MAP.get(reality).size())];
-    }
-
-    @Override
-    public boolean hasExecution(ItemStack handItm) {
-        return handItm != null ? handItm.getItem() instanceof ItemHoe : false;
-    }
-
-    @Override
-    public int getPriority() {
-        return 4;
-    }
-
-    @Override
-    public String getMessage() {
-        return "Eat Villager";
-    }
-
-    @Override
-    public void addTasks(EntityLivingUtility entity, EntityAITasks tasks) {
-        tasks.addTask(this.getPriority(), this);
-        tasks.addTask(5, new EntityAIWander(entity, 1.25F));
     }
 
 }

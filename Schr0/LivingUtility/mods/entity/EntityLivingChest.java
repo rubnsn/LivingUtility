@@ -25,12 +25,16 @@ import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAICollectItem;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIEatVillager;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIFindChest;
 import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIFollowOwner;
-import Schr0.LivingUtility.mods.entity.ai.EntityLivingUtilityAIFreedom;
+import Schr0.LivingUtility.mods.entity.ai.ModeFarmer;
+import Schr0.LivingUtility.mods.entity.ai.ModeFindChest;
+import Schr0.LivingUtility.mods.entity.ai.ModeFollowOwner;
+import Schr0.LivingUtility.mods.entity.ai.ModeFreedom;
 import Schr0.LivingUtility.mods.entity.ai.ILivingUtilityAI;
+import Schr0.LivingUtility.mods.entity.ai.ChastModeManager;
+import Schr0.LivingUtility.mods.entity.ai.ModeVillagersLove;
 
 public class EntityLivingChest extends EntityLivingUtility
 {
-    private PriorityQueue<ILivingUtilityAI> aiQueue=new PriorityQueue<ILivingUtilityAI>(6,new AIComparator());
 	//蓋の開閉の変数(独自)
 	private float							prev;
 	private float							lid;
@@ -52,7 +56,8 @@ public class EntityLivingChest extends EntityLivingUtility
 	public EntityLivingUtilityAIEatVillager	aiEatVillager	= new EntityLivingUtilityAIEatVillager( this );
 	//農業！
 	public EntityLivingUtilityAIChastFarmer	aiFarmer		= new EntityLivingUtilityAIChastFarmer( this );
-	
+
+    private ChastModeManager manager=new ChastModeManager();
 	public EntityLivingChest(World par1World)
 	{
 		super( par1World );
@@ -82,19 +87,7 @@ public class EntityLivingChest extends EntityLivingUtility
 		//飼いならし状態の場合
 		if( this.isTamed() )
 		{
-		    if(aiQueue.isEmpty()){
-                this.aiInit();
-            }
-		    for(ILivingUtilityAI ilu:aiQueue){
-                if(ilu.hasExecution(this.getHeldItem())){
-                    System.out.println(ilu+ilu.getMessage());
-                    if(ilu.getMessage()!=null){
-                        this.Information( this.getInvName() +" : "+ ilu.getMessage() );
-                    }
-                    ilu.addTasks(this,this.tasks);
-                    return;
-                }
-            }
+            manager.setTasks(this, this.getHeldItem());
 		    /*
 			//手に何も持って『いない』場合
 			if( this.getHeldItem() == null )
@@ -287,7 +280,7 @@ public class EntityLivingChest extends EntityLivingUtility
 						//音を出す
 						this.playSE( "random.pop", 1.0F, 1.0F );
 					}
-					
+					this.setAITask();
 					//Itemを振る動作
 					par1EntityPlayer.swingItem();
 				}
@@ -581,14 +574,6 @@ public class EntityLivingChest extends EntityLivingUtility
 	{
 		super.entityInit();
 		this.dataWatcher.addObject( 30, "" );
-	}
-	
-	private void aiInit(){
-	    aiQueue.add(aiFollowOwner);
-	    aiQueue.add(aiFindChest);
-	    aiQueue.add(aiEatVillager);
-	    aiQueue.add(aiFarmer);
-	    aiQueue.add(new EntityLivingUtilityAIFreedom());
 	}
 	
 	//蓋の角度をセット

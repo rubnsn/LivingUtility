@@ -13,8 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import Schr0.LivingUtility.mods.entity.EntityLivingUtility;
 
-public class EntityLivingUtilityAIChastFarmer extends AIBaseEntityLivingUtility
-        implements ILivingUtilityAI {
+public class EntityLivingUtilityAIChastFarmer extends AIBaseEntityLivingUtility {
     //再実行間隔
     private final static int COOL_TIME = 40;
     private int timer;
@@ -110,27 +109,6 @@ public class EntityLivingUtilityAIChastFarmer extends AIBaseEntityLivingUtility
 
     private List<ItemStack> getBlockDropped(World world, Block block, int targetPosX, int targetPosY, int targetPosZ) {
         return block.getBlockDropped(world, targetPosX, targetPosY, targetPosZ, world.getBlockMetadata(targetPosX, targetPosY, targetPosZ), 0);
-    }
-
-    @Override
-    public boolean hasExecution(ItemStack handItm) {
-        return handItm != null ? handItm.getItem() instanceof ItemHoe : false;
-    }
-
-    @Override
-    public int getPriority() {
-        return 4;
-    }
-
-    @Override
-    public String getMessage() {
-        return "Farmer";
-    }
-
-    @Override
-    public void addTasks(EntityLivingUtility entity, EntityAITasks tasks) {
-        tasks.addTask(this.getPriority(), this);
-        tasks.addTask(5, new EntityAIWander(entity, 1.25F));
     }
 
 }

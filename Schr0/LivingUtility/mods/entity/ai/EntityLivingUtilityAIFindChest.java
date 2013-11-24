@@ -16,7 +16,7 @@ import net.minecraft.tileentity.TileEntityHopper;
 import net.minecraft.world.World;
 import Schr0.LivingUtility.mods.entity.EntityLivingUtility;
 
-public class EntityLivingUtilityAIFindChest extends AIBaseEntityLivingUtility implements ILivingUtilityAI
+public class EntityLivingUtilityAIFindChest extends AIBaseEntityLivingUtility 
 {
 	private TileEntityChest		targetChest;
 	private final float			speed;
@@ -332,27 +332,5 @@ public class EntityLivingUtilityAIFindChest extends AIBaseEntityLivingUtility im
 	{
 		return par0ItemStack.itemID != par1ItemStack.itemID ? false : ( par0ItemStack.getItemDamage() != par1ItemStack.getItemDamage() ? false : ( par0ItemStack.stackSize > par0ItemStack.getMaxStackSize() ? false : ItemStack.areItemStackTagsEqual( par0ItemStack, par1ItemStack ) ) );
 	}
-	
-    @Override
-    public boolean hasExecution(ItemStack handItm) {
-        return handItm != null ?handItm.isItemEqual( new ItemStack( Block.chest ) ):false;
-    }
-
-    @Override
-    public int getPriority() {
-        return 4;
-    }
-
-    @Override
-    public String getMessage() {
-        return "FindChest";
-    }
-
-    @Override
-    public void addTasks(EntityLivingUtility entity, EntityAITasks tasks) {
-        tasks.addTask(this.getPriority(), this);
-        tasks.addTask(5, new EntityLivingUtilityAICollectItem( entity, 1.25F ));
-        tasks.addTask(6, new EntityAIWander(entity, 1.25F));
-    }
 	
 }

@@ -1,9 +1,13 @@
 package Schr0.LivingUtility.mods.entity;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAISwimming;
+import net.minecraft.entity.ai.EntityAITaskEntry;
 import net.minecraft.entity.ai.EntityAIWatchClosest;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityGolem;
@@ -60,9 +64,9 @@ public abstract class EntityLivingUtility extends EntityGolem implements IInvent
 		this.playSE( "random.orb", 1.0F, 1.0F );
 		
 		//AIの除去
-		for( int i = 0; i < this.tasks.taskEntries.size(); i++ )
-		{
-			this.tasks.taskEntries.remove( i );
+		Iterator<EntityAITaskEntry> ite=new ArrayList(this.tasks.taskEntries).iterator();
+		while(ite.hasNext()){
+		    this.tasks.removeTask(ite.next().action);
 		}
 		
 		//基本AIの設定
