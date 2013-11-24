@@ -13,5 +13,5 @@ public interface ILivingUtilityAI {
     public boolean hasExecution(ItemStack handItm);
     public int getPriority();
     public String getMessage();
-    public void addSubTasks(EntityLivingUtility entity,EntityAITasks tasks);
+    public void addTasks(EntityLivingUtility entity,EntityAITasks tasks);
 }

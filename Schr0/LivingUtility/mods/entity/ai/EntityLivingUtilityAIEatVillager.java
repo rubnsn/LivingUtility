@@ -190,7 +190,8 @@ public class EntityLivingUtilityAIEatVillager extends AIBaseEntityLivingUtility
     }
 
     @Override
-    public void addSubTasks(EntityLivingUtility entity, EntityAITasks tasks) {
+    public void addTasks(EntityLivingUtility entity, EntityAITasks tasks) {
+        tasks.addTask(this.getPriority(), this);
         tasks.addTask(5, new EntityAIWander(entity, 1.25F));
     }
 

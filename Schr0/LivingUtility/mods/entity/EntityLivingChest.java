@@ -91,10 +91,7 @@ public class EntityLivingChest extends EntityLivingUtility
                     if(ilu.getMessage()!=null){
                         this.Information( this.getInvName() +" : "+ ilu.getMessage() );
                     }
-                    if(ilu instanceof EntityAIBase){
-                        this.tasks.addTask(ilu.getPriority(), (EntityAIBase) ilu);
-                    }
-                    ilu.addSubTasks(this,this.tasks);
+                    ilu.addTasks(this,this.tasks);
                     return;
                 }
             }

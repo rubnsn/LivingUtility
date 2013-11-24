@@ -131,8 +131,8 @@ public class EntityLivingUtilityAIFollowOwner extends AIBaseEntityLivingUtility 
     }
 
     @Override
-    public void addSubTasks(EntityLivingUtility entity,EntityAITasks tasks) {
-        
+    public void addTasks(EntityLivingUtility entity,EntityAITasks tasks) {
+        tasks.addTask(this.getPriority(), this);
     }
 
 
